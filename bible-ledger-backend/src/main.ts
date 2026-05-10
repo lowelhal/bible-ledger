@@ -11,12 +11,8 @@ async function bootstrap() {
     origin: (origin, callback) => {
       // Allow requests with no origin (e.g. Postman, server-to-server)
       if (!origin) return callback(null, true);
-      // Production origins
-      if (
-        origin === 'https://bible-ledger.vercel.app' ||
-        origin === 'https://bible-ledger.onrender.com' ||
-        (process.env.BETTER_AUTH_URL && origin === process.env.BETTER_AUTH_URL)
-      ) {
+      // Production origin from env
+      if (process.env.BETTER_AUTH_URL && origin === process.env.BETTER_AUTH_URL) {
         return callback(null, true);
       }
       // Local development origins
