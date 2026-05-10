@@ -4,6 +4,8 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
+const frontendUrl = process.env.FRONTEND_URL || '';
+
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
     provider: "postgresql",
@@ -18,9 +20,7 @@ export const auth = betterAuth({
     }
   },
   trustedOrigins: [
-    // Production — pulled from env
-    ...(process.env.BETTER_AUTH_URL ? [process.env.BETTER_AUTH_URL] : []),
-    // Local development
+    ...(frontendUrl ? [frontendUrl] : []),
     "http://localhost:*",
     "http://127.0.0.1:*",
     "http://192.168.*",

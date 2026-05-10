@@ -6,13 +6,15 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   
+  const frontendUrl = process.env.FRONTEND_URL || '';
+
   app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
   app.enableCors({
     origin: (origin, callback) => {
       // Allow requests with no origin (e.g. Postman, server-to-server)
       if (!origin) return callback(null, true);
-      // Production origin from env
-      if (process.env.BETTER_AUTH_URL && origin === process.env.BETTER_AUTH_URL) {
+      // Production origin from FRONTEND_URL env var
+      if (frontendUrl && origin === frontendUrl) {
         return callback(null, true);
       }
       // Local development origins
@@ -24,7 +26,9 @@ async function bootstrap() {
       ) {
         return callback(null, true);
       }
-      callback(new Error('Not allowed by CORS'));
+      // Reject unknown origins
+      console.warn(`CORS blocked origin: ${origin}`);
+      callback(new Error(`Origin ${origin} not allowed by CORS`));
     },
     credentials: true,
   });
@@ -37,6 +41,8 @@ async function bootstrap() {
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, documentFactory);
 
-  await app.listen(process.env.PORT ?? 3000, '0.0.0.0');
+  const port = process.env.PORT ?? 3000;
+  await app.listen(port, '0.0.0.0');
+  console.log(`Server running on port ${port}, FRONTEND_URL=${frontendUrl || '(not set)'}`);
 }
 bootstrap();
