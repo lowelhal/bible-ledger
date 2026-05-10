@@ -1,0 +1,676 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Bible Ledger API",
+    "version": "1.4.0",
+    "description": "A high-precision, event-sourced spiritual ledger. It treats Scripture engagement as an immutable record, providing verse-level tracking, historical instance data, and hierarchical completion analytics."
+  },
+  "servers": [
+    {
+      "url": "https://api.bibleledger.app/v1",
+      "description": "Production Server"
+    }
+  ],
+  "paths": {
+    "paths": {
+      "/bible/translations": {
+        "get": {
+          "summary": "List available Bible translations.",
+          "description": "Returns KJV (internal) and others (proxied via HelloAO or external APIs).",
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/Translation"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/bible/{translation_id}/passage": {
+        "get": {
+          "summary": "Fetch text for a specific chapter or verse range.",
+          "parameters": [
+            {
+              "name": "translation_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "book",
+              "in": "query",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "chapter",
+              "in": "query",
+              "required": true,
+              "schema": {
+                "type": "integer"
+              }
+            },
+            {
+              "name": "start_verse",
+              "in": "query",
+              "schema": {
+                "type": "integer"
+              }
+            },
+            {
+              "name": "end_verse",
+              "in": "query",
+              "schema": {
+                "type": "integer"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ChapterResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/bible/search": {
+        "get": {
+          "summary": "Search for text within a specific translation (KJV default).",
+          "parameters": [
+            {
+              "name": "q",
+              "in": "query",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "translation_id",
+              "in": "query",
+              "schema": {
+                "type": "string",
+                "default": "KJV"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/Verse"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/ledger-entries": {
+        "get": {
+          "summary": "Retrieve ledger history with precision filtering.",
+          "description": "Supports finding entries by time range or passage intersection[cite: 564, 625].",
+          "parameters": [
+            {
+              "name": "user_id",
+              "in": "query",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "start_date",
+              "in": "query",
+              "schema": {
+                "type": "string",
+                "format": "date-time"
+              }
+            },
+            {
+              "name": "end_date",
+              "in": "query",
+              "schema": {
+                "type": "string",
+                "format": "date-time"
+              }
+            },
+            {
+              "name": "book",
+              "in": "query",
+              "schema": {
+                "type": "string"
+              },
+              "description": "Filter by book (e.g., 'John')."
+            },
+            {
+              "name": "chapter",
+              "in": "query",
+              "schema": {
+                "type": "integer"
+              }
+            },
+            {
+              "name": "status",
+              "in": "query",
+              "schema": {
+                "type": "string",
+                "enum": [
+                  "PENDING",
+                  "CONFIRMED"
+                ]
+              }
+            },
+            {
+              "name": "tags",
+              "in": "query",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "explode": true
+            }
+          ],
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/LedgerEntry"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "post": {
+          "summary": "Append a new reading event to the ledger.",
+          "description": "No PUT supported to ensure historical integrity[cite: 162, 532].",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LedgerEntry"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/ledger-entries/bulk": {
+        "post": {
+          "summary": "Batch append multiple entries.",
+          "description": "Optimized for logging entire books or long sessions in one request[cite: 12, 46].",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LedgerEntry"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/notes": {
+        "get": {
+          "summary": "Retrieve personal notes.",
+          "parameters": [
+            {
+              "name": "user_id",
+              "in": "query",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "book",
+              "in": "query",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "tags",
+              "in": "query",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "explode": true
+            }
+          ],
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/Note"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "post": {
+          "summary": "Add a new note to a passage.",
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Note"
+                }
+              }
+            }
+          }
+        },
+        "put": {
+          "summary": "Update note content or tags (Notes are living thoughts)[cite: 165, 371]."
+        },
+        "delete": {
+          "summary": "Remove a note."
+        }
+      },
+      "/highlights": {
+        "get": {
+          "summary": "Retrieve highlights (supports overlaps)[cite: 589, 607].",
+          "parameters": [
+            {
+              "name": "user_id",
+              "in": "query",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "book",
+              "in": "query",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ]
+        },
+        "post": {
+          "summary": "Record a new highlight.",
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Highlight"
+                }
+              }
+            }
+          }
+        },
+        "delete": {
+          "summary": "Remove a highlight by ID."
+        }
+      },
+      "/stats/summary": {
+        "get": {
+          "summary": "Retrieve hierarchical completion and heatmap data[cite: 172, 378].",
+          "parameters": [
+            {
+              "name": "user_id",
+              "in": "query",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/StatsSummary"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "schemas": {
+        "Source": {
+          "type": "string",
+          "enum": [
+            "SYSTEM_AUTO",
+            "USER_APP",
+            "USER_WEB",
+            "EXTERNAL_RSS",
+            "EXTERNAL_ICAL",
+            "API_INTEGRATION"
+          ],
+          "description": "Source attribution for the 'Mixed-Ledger' model[cite: 7, 626]."
+        },
+        "Verse": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "verse_num": {
+              "type": "integer"
+            },
+            "text": {
+              "type": "string"
+            }
+          }
+        },
+        "ChapterResponse": {
+          "type": "object",
+          "properties": {
+            "translation": {
+              "type": "string"
+            },
+            "book": {
+              "type": "string"
+            },
+            "chapter": {
+              "type": "integer"
+            },
+            "verses": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/Verse"
+              }
+            }
+          }
+        },
+        "Passage": {
+          "type": "object",
+          "properties": {
+            "book": {
+              "type": "string"
+            },
+            "chapter": {
+              "type": "integer"
+            },
+            "start_verse": {
+              "type": "integer"
+            },
+            "end_verse": {
+              "type": "integer"
+            },
+            "verse_ids": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Supports non-contiguous tracking[cite: 6, 82]."
+            }
+          },
+          "required": [
+            "book",
+            "chapter",
+            "start_verse",
+            "end_verse"
+          ]
+        },
+        "LedgerEntry": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "user_id": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "PENDING",
+                "CONFIRMED"
+              ],
+              "default": "CONFIRMED"
+            },
+            "source": {
+              "$ref": "#/components/schemas/Source"
+            },
+            "start_time": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "end_time": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Enables reading velocity telemetry."
+            },
+            "passage": {
+              "$ref": "#/components/schemas/Passage"
+            },
+            "translation_id": {
+              "type": "string"
+            },
+            "tags": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "example": [
+                "Devotional",
+                "Church Service"
+              ]
+            }
+          },
+          "required": [
+            "user_id",
+            "status",
+            "passage",
+            "source"
+          ]
+        },
+        "Note": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "user_id": {
+              "type": "string"
+            },
+            "source": {
+              "$ref": "#/components/schemas/Source"
+            },
+            "passage": {
+              "$ref": "#/components/schemas/Passage"
+            },
+            "content": {
+              "type": "string"
+            },
+            "tags": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "created_at": {
+              "type": "string",
+              "format": "date-time",
+              "description": "The original 'Spiritual Timestamp'[cite: 581, 608]."
+            },
+            "updated_at": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        },
+        "Highlight": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "user_id": {
+              "type": "string"
+            },
+            "passage": {
+              "$ref": "#/components/schemas/Passage"
+            },
+            "color_hex": {
+              "type": "string"
+            },
+            "tags": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "source": {
+              "$ref": "#/components/schemas/Source"
+            }
+          }
+        },
+        "StatsSummary": {
+          "type": "object",
+          "properties": {
+            "completion": {
+              "type": "object",
+              "properties": {
+                "total_bible": {
+                  "type": "number"
+                },
+                "old_testament": {
+                  "$ref": "#/components/schemas/GroupStat"
+                },
+                "new_testament": {
+                  "$ref": "#/components/schemas/GroupStat"
+                }
+              }
+            },
+            "heatmap": {
+              "$ref": "#/components/schemas/CoverageMap"
+            },
+            "achievements": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/Badge"
+              }
+            }
+          }
+        },
+        "CoverageMap": {
+          "type": "object",
+          "description": "Optimized mosaic data for 31,102 verses[cite: 13, 84, 118].",
+          "properties": {
+            "read_counts": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "integer"
+              }
+            },
+            "bitmask": {
+              "type": "string",
+              "description": "Base64 encoded bitmask for high-speed rendering[cite: 84, 138]."
+            }
+          }
+        },
+        "GroupStat": {
+          "type": "object",
+          "properties": {
+            "percent": {
+              "type": "number"
+            },
+            "sub_groups": {
+              "type": "object",
+              "properties": {
+                "pentateuch": {
+                  "type": "number"
+                },
+                "history": {
+                  "type": "number"
+                },
+                "poetry_wisdom": {
+                  "type": "number"
+                },
+                "major_prophets": {
+                  "type": "number"
+                },
+                "minor_prophets": {
+                  "type": "number"
+                },
+                "gospels": {
+                  "type": "number"
+                },
+                "acts": {
+                  "type": "number"
+                },
+                "pauline_epistles": {
+                  "type": "number"
+                },
+                "general_epistles": {
+                  "type": "number"
+                },
+                "revelation": {
+                  "type": "number"
+                }
+              }
+            }
+          }
+        },
+        "Badge": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "earned": {
+              "type": "boolean"
+            },
+            "earned_at": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        }
+      }
+    }
+  }

@@ -1,0 +1,364 @@
+Bible Tracking App – Project Overview & Requirements
+Introduction: An Overview of the Bible Tracking App
+As Christians, we know the importance of studying the Word of God, yet many of us struggle to complete structured reading plans, such as “read the Bible in a year.” Life gets in the way, schedules shift, and our intentions don’t always align with reality. However, even if you don't complete a formal plan, you likely engage with Scripture more often than you realize. A passage during a devotional, a reading in church, group Bible study discussions, or a verse of the day—these moments add up over time.
+What if, throughout your Christian walk, you've already read most—or even all—of the Bible without knowing it? Perhaps there are just a few books or chapters you’ve yet to explore. Wouldn't it be valuable to track your Bible reading, whether from a structured plan or spontaneous encounters? Imagine being able to reflect on how much Scripture you've covered in the past month, year, or several years. You could discover which passages you return to most often and identify areas you’ve yet to explore.
+We live in a time where tracking progress is common: we monitor our physical activity, nutrition, travel, and even mental well-being. So, why not track our time in the Bible too? 
+There are many great resources out there to help, 
+but none have ticked all the boxes for me. 
+Many focus solely on structured plans or require manual tracking without providing an easy way to record spontaneous readings. None offer a complete view of your Scripture engagement across multiple contexts.
+Introducing the Bible Tracking System
+The Bible Tracking System provides a unified platform that allows users to track their Scripture reading across various contexts, encouraging meaningful engagement at their own pace. This app combines tracking, statistics, achievements, and personal notes into a seamless experience, helping users reflect on their spiritual growth over time.
+This can serve as a comprehensive hub that accommodates everything from devotionals and structured study plans to casual readings and group studies. It provides options that can remove the friction of switching between apps or manually logging progress, giving users a clear, insightful view of their Bible journey.
+The Bible Tracking System introduces several key features that streamline Bible engagement, offering both flexibility and a comprehensive overview of users' progress.
+Main Features:
+Reading & Tracking Features
+:
+Integrated Bible Reader
+: Users can read directly in the app without needing external tools.
+Support for Multiple Translations
+: Include KJV as the default (with offline option) with options for NIV, ESV, NLT, etc. (online only via API).
+Verse-Level Tracking
+: Track progress at a granular level (specific verses, not just chapters). This feature is minimally supported in only one existing option.
+Instance Level Tracking
+: Capturing date/time for reading progress logs, allowing a historical view as well as tracking where verses have been read multiple times.
+Reading Session Tags
+: Allow users to 
+categorize
+ reading sessions (General, Study, Devotional) with custom tag options. Additionally allow 
+translation
+, reading 
+source
+, and other details.
+Auto-Tracking (w/ confirmation)
+: Option to auto-mark verses or chapters as read with confirmation. 
+Notes & Highlights:
+ Users can 
+highlight passages and 
+annotate verses and create personal notes as they read the Bible.
+Statistics & Motivation
+: Offer detailed statistics, achievements, and visualizations (including 
+verse heat
+-
+maps
+ for frequently read passages) to motivate users and make their progress tangible. Monthly and/or yearly summaries, insights & recommendations.
+User-Friendly Experience
+: Develop 
+both mobile and web
+ applications that provide an intuitive and seamless experience for reading, tracking progress, and managing notes and highlights. Existing solutions seem to be one or the other, not both.
+Auto-Tracking for some external reading schedules
+: Allow for subscribing to feeds from other applications to serve as notifications for users to read, or automatically update Bible reading progress (with the assumption the user has read from the other app). E.g., Bible reading plans, verse of the day, or daily devotional reading 
+Central Bible Study Tracking
+: Provide a single repository that integrates with various applications, ensuring that users can maintain all their Bible study details in one place, regardless of the platform they use. Expose integration points for external applications that allow 
+them to 
+u
+pdate users' reading progress, notes, and highlights.
+Notifications: 
+C
+onfigurable notifications or reminders if you have subscribed to a reading plan
+ either from external sources or just a challenge based on your statistics.
+S
+ocial 
+Integration
+ & Blog
+: 
+Ability to join groups, challenges, share achievements and encouragements with friends
+.
+ We may P
+ost 
+occasional
+ 
+articles on Bible study tips, including aggregated insights from persons who have been consistent, or reading patterns observed.
+Technical Plan
+Implementation
+The core goals are to:
+Create a 
+backend
+ that manages Bible reading, progress tracking, highlights, and notes.
+Develop a 
+frontend (mobile and web)
+ that incorporates Bible reading, progress tracking, note-taking, and other interactive features.
+Define standard integration to Expose 
+API services
+ to external applications for integration and syncing user progress.
+Use a 
+scalable, cost-effective architecture
+ leveraging serverless and cloud-based solutions for deployment to minimize operational costs.
+Key Features
+Backend Features
+Bible Reading API
+:
+Provide 
+KJV text
+ housed within the solution itself
+Offer optional offline download for KJV.
+Proxy requests for other translations (e.g., 
+ESV
+, 
+NIV
+) through external APIs, configurable per user account level.
+Allow users to request 
+one or multiple chapters
+ at a time.
+Allow simple searching based on text. (at least for KJV)
+Progress Tracking API
+:
+Track reading progress at the 
+verse level
+, 
+organized
+ by sessions
+(date/time)
+, Translation, Source
+, 
+tags/
+categories (e.g., General, Devotional, Bible Study, Custom),
+.
+Include 
+basic validation
+ to ensure valid book, chapter, and verse references (especially considering use by other applications)
+Provide 
+detailed statistics
+ on user progress, including achievement (badges), and periodic summaries/insights
+Highlights and Notes API
+:
+Store and manage 
+verse highlights
+ with optional colors/categories.
+Allow users to add 
+multiple notes
+ for any verse, supporting annotations across their journey.
+API Key Management System
+:
+Allow 
+external applications
+ to register and generate API keys for access to backend services.
+Develop documentation and expose services to add reading records, as well as notes and bible highlights
+Manage external integrations via a developer 
+website interface
+.
+Frontend Features
+Progress Tracker & Dashboard:
+Allow users to record new progress/reading
+Display reading progress, achievements, and heatmaps.
+Sync progress across devices via the backend API.
+2) 
+Bible Reader
+:
+Provide 
+online Bible reading
+ with access to translations.
+Offer 
+KJV offline support
+ as an optional download.
+Automatically track verses as read (using models incorporating time on screen to improve accuracy), with option to prompt user for confirmation.
+Users can 
+highlight verses
+ and 
+add notes
+ directly within the reader.
+3) 
+Developer Front-end (API Key Management Interface)
+:
+Allow users to 
+register external apps
+ and manage API keys on the website.
+Display 
+usage statistics
+ for API keys generated by the user.
+Backend API Overview
+Bible Reading API
+ (Internal Only):
+GET /bible/{translation}/{book}/{chapter}
+: Retrieve chapter text.
+GET /bible/translations
+: List all available translations.
+POST /bible/download-kjv
+: Initiate KJV download for offline use.
+Progress Tracking API
+:
+POST /progress
+: Add a new progress entry.
+GET /progress
+: Retrieve progress by user or session.
+PUT /progress/{id}
+: Update an existing progress entry.
+DELETE /progress/{id}
+: Delete a progress entry.
+Highlights API
+:
+POST /highlights
+: Add a new highlight.
+GET /highlights
+: Retrieve highlights by user, book, or chapter.
+PUT /highlights/{id}:
+ Update an existing highlight.
+DELETE /highlights/{id}
+: Remove a highlight.
+Notes API
+:
+POST /notes
+: Add a note to a verse.
+GET /notes
+: Retrieve notes by user or passage.
+PUT /notes/{id}
+: Update an existing note.
+DELETE /notes/{id}
+: Delete a note.
+API Key Management
+: Managed externally
+Bible Tracking System - Folder and File Structure for API Documentation
+To organize all the OpenAPI and JSON Schema files required for describing the features of the Bible Tracking API, The following files are provided.
+api-documentation/
+│
+├── openapi/
+│   ├── bible/
+│   │   ├── get_chapter.json
+│   │   ├── get_translations.json
+│   │   ├── get_books.json
+│   │   ├── get_verses.json
+│   ├── progress/
+│   │   ├── add_progress.json
+│   │   ├── update_progress.json
+│   │   ├── delete_progress.json
+│   │   ├── get_progress.json
+│   ├── highlights/
+│   │   ├── add_highlight.json
+│   │   ├── update_highlight.json
+│   │   ├── delete_highlight.json
+│   │   ├── get_highlights.json
+│   ├── notes/
+│   │   ├── add_note.json
+│   │   ├── update_note.json
+│   │   ├── delete_note.json
+│   │   ├── get_notes.json
+│   └── general_info.json
+│
+├── schemas/
+│   ├── chapter_response.json
+│   ├── translation.json
+│   ├── book.json
+│   ├── verse.json
+│   ├── progress_entry.json
+│   ├── user_progress.json
+│   ├── highlight.json
+│   ├── note.json
+│   └── passage.json
+│
+└── examples/
+    ├── get_chapter_example.json
+    ├── get_translations_example.json
+    ├── get_books_example.json
+    ├── get_verses_example.json
+    ├── add_progress_example.json
+    ├── update_progress_example.json
+    ├── delete_progress_example.json
+    ├── get_progress_example.json
+    ├── add_highlight_example.json
+    ├── update_highlight_example.json
+    ├── delete_highlight_example.json
+    ├── get_highlights_example.json
+    ├── add_note_example.json
+    ├── update_note_example.json
+    ├── delete_note_example.json
+    └── get_notes_example.json
+Folder and File Details
+api-documentation/
+: Root folder to hold all API documentation files.
+openapi/
+: Contains OpenAPI specification files in JSON format for each endpoint.
+bible/
+: Sub-folder to hold all OpenAPI files related to Bible reading.
+get_chapter.json
+: Defines the OpenAPI specification for the GET /bible/{translation}/{book}/{chapter} endpoint.
+get_translations.json
+: Defines the OpenAPI specification for the GET /bible/translations endpoint.
+get_books.json
+: Defines the OpenAPI specification for the GET /bible/{translation}/books endpoint.
+get_verses.json
+: Defines the OpenAPI specification for the GET /bible/{translation}/{book}/{chapter}/verses endpoint.
+progress/
+: Sub-folder to hold all OpenAPI files related to progress tracking.
+add_progress.json
+: Defines the OpenAPI specification for the POST /progress endpoint.
+update_progress.json
+: Defines the OpenAPI specification for the PUT /progress/{id} endpoint.
+delete_progress.json
+: Defines the OpenAPI specification for the DELETE /progress/{id} endpoint.
+get_progress.json
+: Defines the OpenAPI specification for the GET /progress/{user_id} endpoint.
+highlights/
+: Sub-folder to hold all OpenAPI files related to highlights.
+add_highlight.json
+: Defines the OpenAPI specification for the POST /highlights endpoint.
+update_highlight.json
+: Defines the OpenAPI specification for the PUT /highlights/{id} endpoint.
+delete_highlight.json
+: Defines the OpenAPI specification for the DELETE /highlights/{id} endpoint.
+get_highlights.json
+: Defines the OpenAPI specification for the GET /highlights/{user_id} endpoint.
+notes/
+: Sub-folder to hold all OpenAPI files related to notes.
+add_note.json
+: Defines the OpenAPI specification for the POST /notes endpoint.
+update_note.json
+: Defines the OpenAPI specification for the PUT /notes/{id} endpoint.
+delete_note.json
+: Defines the OpenAPI specification for the DELETE /notes/{id} endpoint.
+get_notes.json
+: Defines the OpenAPI specification for the GET /notes/{user_id} endpoint.
+general_info.json
+: Holds general information about the API, such as version, title, and server details.
+schemas/
+: Contains JSON Schema files used in the API responses.
+chapter_response.json
+: Defines the JSON Schema for the chapter response.
+translation.json
+: Defines the JSON Schema for the list of available translations.
+book.json
+: Defines the JSON Schema for the book details.
+verse.json
+: Defines the JSON Schema for the verse details.
+progress_entry.json
+: Defines the JSON Schema for adding a progress entry.
+user_progress.json
+: Defines the JSON Schema for user progress details.
+highlight.json
+: Defines the JSON Schema for adding a highlight.
+note.json
+: Defines the JSON Schema for adding a note.
+passage.json
+: A generic JSON Schema to define a Bible passage object, which could be reused across different API endpoints.
+examples/
+: Contains example response files for different endpoints.
+get_chapter_example.json
+: Example response for the GET /bible/{translation}/{book}/{chapter} endpoint.
+get_translations_example.json
+: Example response for the GET /bible/translations endpoint.
+get_books_example.json
+: Example response for the GET /bible/{translation}/books endpoint.
+get_verses_example.json
+: Example response for the GET /bible/{translation}/{book}/{chapter}/verses endpoint.
+add_progress_example.json
+: Example request for the POST /progress endpoint.
+update_progress_example.json
+: Example request for the PUT /progress/{id} endpoint.
+delete_progress_example.json
+: Example request for the DELETE /progress/{id} endpoint.
+get_progress_example.json
+: Example response for the GET /progress/{user_id} endpoint.
+add_highlight_example.json
+: Example request for the POST /highlights endpoint.
+update_highlight_example.json
+: Example request for the PUT /highlights/{id} endpoint.
+delete_highlight_example.json
+: Example request for the DELETE /highlights/{id} endpoint.
+get_highlights_example.json
+: Example response for the GET /highlights/{user_id} endpoint.
+add_note_example.json
+: Example request for the POST /notes endpoint.
+update_note_example.json
+: Example request for the PUT /notes/{id} endpoint.
+delete_note_example.json
+: Example request for the DELETE /notes/{id} endpoint.
+get_notes_example.json
+: Example response for the GET /notes/{user_id} endpoint.
