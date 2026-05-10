@@ -1,3 +1,13 @@
+# Old project files (not part of the monorepo)
+RPI_Backup/
+App Resource Files/
+temp_doc/
+temp.zip
+doc_text*.txt
+*.docx
+FullReview.md
+BibleTracker_*.md
+
 # Dependencies
 node_modules/
 
