@@ -1,13 +1,37 @@
 "use client";
 
 import { Geist, Geist_Mono } from "next/font/google";
-import { LayoutDashboard, BookOpen, Bookmark, Settings, Highlighter, ScrollText } from "lucide-react";
+import { LayoutDashboard, BookOpen, Bookmark, Settings, Highlighter, ScrollText, User } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { UserProvider } from "@/contexts/UserContext";
+import { UserProvider, useUser } from "@/contexts/UserContext";
 import { Toaster } from "react-hot-toast";
 import "./globals.css";
 import { BOOKS, BOOK_CHAPTER_COUNTS } from "@/lib/bible-data";
+
+function UserProfileBadge() {
+  const { displayName, email, isAuthenticated } = useUser();
+  if (!isAuthenticated) return null;
+
+  const initials = displayName
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+
+  return (
+    <Link href="/settings" className="mx-4 mb-4 px-4 py-3 rounded-xl flex items-center gap-3 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors group">
+      <div className="w-9 h-9 rounded-full bg-brand/20 text-brand flex items-center justify-center text-sm font-bold shrink-0">
+        {initials || <User className="w-4 h-4" />}
+      </div>
+      <div className="min-w-0 flex-1">
+        <p className="text-sm font-semibold truncate">{displayName}</p>
+        <p className="text-[11px] text-slate-400 truncate">{email}</p>
+      </div>
+    </Link>
+  );
+}
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
@@ -30,6 +54,7 @@ export default function ClientLayout({ children }: Readonly<{ children: React.Re
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased dark`}>
       <body className="min-h-full flex bg-slate-50 dark:bg-slate-950">
+        <UserProvider>
 
         {/* Sidebar (Desktop Only) */}
         {!pathname.startsWith('/auth') && (
@@ -56,13 +81,15 @@ export default function ClientLayout({ children }: Readonly<{ children: React.Re
               </Link>
             ))}
           </nav>
+
+          {/* User profile at bottom of sidebar */}
+          <UserProfileBadge />
         </aside>
         )}
 
         {/* Main Content */}
         <div className="flex-1 flex flex-col overflow-x-hidden pb-16 md:pb-0">
           <main className="flex-1 flex flex-col relative z-0">
-            <UserProvider>
               {children}
               <Toaster 
                 position="bottom-right" 
@@ -74,11 +101,10 @@ export default function ClientLayout({ children }: Readonly<{ children: React.Re
                   }
                 }} 
               />
-            </UserProvider>
           </main>
         </div>
 
-        {/* Bottom Navigation (Mobile Only) — Fix #11 */}
+        {/* Bottom Navigation (Mobile Only) */}
         {!pathname.startsWith('/auth') && (
           <nav className="md:hidden fixed bottom-0 left-0 right-0 glass border-t border-slate-200 dark:border-white/10 flex items-stretch justify-around z-50 bg-white/90 dark:bg-slate-900/90 backdrop-blur-lg">
           {NAV_ITEMS.map((item) => {
@@ -104,6 +130,7 @@ export default function ClientLayout({ children }: Readonly<{ children: React.Re
           </nav>
         )}
 
+        </UserProvider>
       </body>
     </html>
   );

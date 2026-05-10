@@ -10,6 +10,7 @@ import toast from "react-hot-toast";
 import { BOOKS, BOOK_CHAPTER_COUNTS, USFM_TO_BOOK_NAME } from "@/lib/bible-data";
 
 export default function Dashboard() {
+  const { displayName } = useUser();
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<any>(null);
   const [sessions, setSessions] = useState<any[]>([]);
@@ -140,7 +141,7 @@ export default function Dashboard() {
         {/* Header section */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div className="space-y-2">
-            <h1 className="text-4xl font-extrabold tracking-tight">Welcome Back.</h1>
+            <h1 className="text-4xl font-extrabold tracking-tight">Welcome back, {displayName}.</h1>
             <p className="text-lg text-slate-600 dark:text-slate-400">
               You're currently on a <span className="text-orange-500 font-bold">{stats?.current_streak || 0}-day</span> reading streak. Keep it up!
             </p>
