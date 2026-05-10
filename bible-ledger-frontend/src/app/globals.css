@@ -1,0 +1,83 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand: #6366f1; /* Indigo 500 */
+  --color-brand-hover: #4f46e5; /* Indigo 600 */
+  --color-brand-light: #e0e7ff; /* Indigo 100 */
+  --color-brand-dark: #3730a3; /* Indigo 800 */
+  
+  --color-surface: #ffffff;
+  --color-surface-hover: #f8fafc; /* Slate 50 */
+  --color-surface-dark: #1e293b; /* Slate 800 */
+  --color-surface-dark-hover: #0f172a; /* Slate 900 */
+  
+  --color-background-dark: #020617; /* Slate 950 */
+  --color-background-light: #f8fafc; /* Slate 50 */
+  
+  --animate-fade-in: fade-in 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-slide-up: slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-scale-up: scale-up 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slide-up {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes scale-up {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+@layer base {
+  :root {
+    --background: var(--color-background-light);
+    --foreground: #0f172a; /* Slate 900 */
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --background: var(--color-background-dark);
+      --foreground: #f8fafc; /* Slate 50 */
+    }
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+  
+  ::selection {
+    background-color: var(--color-brand);
+    color: white;
+  }
+}
+
+@layer utilities {
+  .glass {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
+  }
+  
+  .dark .glass {
+    background: rgba(15, 23, 42, 0.6); /* Slate 900 with opacity */
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+  }
+  
+  .text-gradient {
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-image: linear-gradient(to right, var(--color-brand), #a855f7); /* Indigo to Purple */
+  }
+}

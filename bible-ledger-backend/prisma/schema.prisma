@@ -1,0 +1,202 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Source {
+  SYSTEM_AUTO
+  USER_APP
+  USER_WEB
+  EXTERNAL_RSS
+  EXTERNAL_ICAL
+  API_INTEGRATION
+}
+
+enum Status {
+  PENDING
+  CONFIRMED
+}
+
+model LedgerEntry {
+  id         String    @id @default(uuid())
+  user_id    String
+  status     Status    @default(CONFIRMED)
+  source     Source
+  start_time DateTime?
+  end_time   DateTime?
+
+  // Flattened Passage
+  book        String
+  chapter     Int
+  start_verse Int
+  end_verse   Int
+  verse_ids   String[]
+
+  translation_id String?
+  tags           String[]
+
+  @@index([user_id])
+  @@index([user_id, book, chapter])
+}
+
+model Note {
+  id         String   @id @default(uuid())
+  user_id    String
+  source     Source?
+  content    String
+  tags       String[]
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  // Flattened Passage
+  book        String
+  chapter     Int
+  start_verse Int
+  end_verse   Int
+  verse_ids   String[]
+
+  @@index([user_id])
+  @@index([user_id, book])
+}
+
+model Highlight {
+  id        String   @id @default(uuid())
+  user_id   String
+  color_hex String?
+  tags      String[]
+  source    Source?
+
+  // Flattened Passage
+  book        String
+  chapter     Int
+  start_verse Int
+  end_verse   Int
+  verse_ids   String[]
+
+  @@index([user_id])
+  @@index([user_id, book])
+}
+
+model UserStats {
+  user_id           String    @id
+  total_verses_read Int       @default(0)
+  chapters_read     Int       @default(0)
+  current_streak    Int       @default(0)
+  longest_streak    Int       @default(0)
+  last_read_date    DateTime?
+
+  updated_at DateTime @updatedAt
+}
+
+// -----------------------------------------------------------------------------
+// Reading Feeds & Subscriptions
+// -----------------------------------------------------------------------------
+
+model ReadingFeed {
+  id            String         @id @default(uuid())
+  slug          String         @unique
+  name          String
+  year          Int?
+  created_at    DateTime       @default(now())
+  readings      FeedReading[]
+  subscriptions Subscription[]
+}
+
+model FeedReading {
+  id          String      @id @default(uuid())
+  feed_id     String
+  feed        ReadingFeed @relation(fields: [feed_id], references: [id], onDelete: Cascade)
+  date        DateTime    @db.Date
+  book        String
+  chapter     Int
+  start_verse Int
+  end_verse   Int
+
+  @@unique([feed_id, date])
+  @@index([feed_id, date])
+}
+
+model Subscription {
+  id         String      @id @default(uuid())
+  user_id    String
+  feed_id    String
+  feed       ReadingFeed @relation(fields: [feed_id], references: [id])
+  enabled    Boolean     @default(true)
+  created_at DateTime    @default(now())
+  updated_at DateTime    @updatedAt
+
+  @@unique([user_id, feed_id])
+  @@index([user_id])
+}
+
+// -----------------------------------------------------------------------------
+// User Settings
+// -----------------------------------------------------------------------------
+
+model UserSettings {
+  user_id                   String  @id
+  auto_confirm_readings     Boolean @default(true)
+  auto_confirm_subscriptions Boolean @default(false)
+
+  updated_at DateTime @updatedAt
+}
+
+// -----------------------------------------------------------------------------
+// BetterAuth Identity Schema
+// -----------------------------------------------------------------------------
+
+model User {
+  id            String    @id @default(uuid())
+  name          String
+  email         String    @unique
+  emailVerified Boolean
+  image         String?
+  createdAt     DateTime
+  updatedAt     DateTime
+  sessions      Session[]
+  accounts      Account[]
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  createdAt DateTime
+  updatedAt DateTime
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([token])
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime
+  updatedAt             DateTime
+}
+
+model Verification {
+  id         String    @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime?
+  updatedAt  DateTime?
+}
