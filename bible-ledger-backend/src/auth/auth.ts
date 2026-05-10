@@ -18,6 +18,12 @@ export const auth = betterAuth({
     }
   },
   trustedOrigins: [
+    // Production
+    "https://bible-ledger.vercel.app",
+    "https://bible-ledger.onrender.com",
+    // Dynamic from env
+    ...(process.env.BETTER_AUTH_URL ? [process.env.BETTER_AUTH_URL] : []),
+    // Local development
     "http://localhost:*",
     "http://127.0.0.1:*",
     "http://192.168.*",

@@ -11,7 +11,15 @@ async function bootstrap() {
     origin: (origin, callback) => {
       // Allow requests with no origin (e.g. Postman, server-to-server)
       if (!origin) return callback(null, true);
-      // Accept any localhost or private-network origin during development
+      // Production origins
+      if (
+        origin === 'https://bible-ledger.vercel.app' ||
+        origin === 'https://bible-ledger.onrender.com' ||
+        (process.env.BETTER_AUTH_URL && origin === process.env.BETTER_AUTH_URL)
+      ) {
+        return callback(null, true);
+      }
+      // Local development origins
       if (
         origin.includes('localhost') ||
         origin.includes('127.0.0.1') ||
@@ -33,6 +41,6 @@ async function bootstrap() {
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, documentFactory);
 
-  await app.listen(process.env.PORT ?? 3001, '0.0.0.0');
+  await app.listen(process.env.PORT ?? 3000, '0.0.0.0');
 }
 bootstrap();
