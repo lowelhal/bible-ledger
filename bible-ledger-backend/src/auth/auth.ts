@@ -6,6 +6,8 @@ const prisma = new PrismaClient();
 
 const frontendUrl = process.env.FRONTEND_URL || '';
 
+const isProduction = !!frontendUrl && frontendUrl.startsWith('https');
+
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
     provider: "postgresql",
@@ -26,4 +28,13 @@ export const auth = betterAuth({
     "http://192.168.*",
     "http://10.*",
   ],
+  // Cross-domain cookie config: required when frontend and backend are on different domains
+  ...(isProduction ? {
+    advanced: {
+      defaultCookieAttributes: {
+        sameSite: "none" as const,
+        secure: true,
+      },
+    },
+  } : {}),
 });
