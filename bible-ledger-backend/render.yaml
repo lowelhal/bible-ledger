@@ -3,6 +3,7 @@ services:
     name: bible-ledger-api
     env: node
     plan: free
+    rootDir: bible-ledger-backend
     buildCommand: npm install && npx prisma generate && npm run build
     startCommand: npm run start:prod
     envVars:
@@ -10,11 +11,18 @@ services:
         sync: false
       - key: PORT
         value: 3000
-      - key: BETTER_AUTH_URL
+      - key: FRONTEND_URL
+        sync: false
+      - key: BACKEND_URL
         sync: false
       - key: BETTER_AUTH_SECRET
+        sync: false
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
         sync: false
       - key: YOUVERSION_API_KEY
         sync: false
       - key: NODE_ENV
         value: production
+

@@ -60,7 +60,7 @@ export default function AuthPage() {
     try {
       await signIn.social({
         provider: "google",
-        callbackURL: "/",
+        callbackURL: typeof window !== "undefined" ? `${window.location.origin}/` : "/",
       });
     } catch (err: any) {
       toast.error("Failed to sign in with Google.");

@@ -138,7 +138,7 @@ export default function SettingsPage() {
 
           {feeds.length === 0 ? (
             <div className="px-6 py-6 text-center text-sm text-slate-400">
-              No reading feeds available yet. Run the sync utility to populate feeds.
+              No reading feeds are available at this time. Check back later.
             </div>
           ) : (
             <div className="divide-y divide-slate-100 dark:divide-white/5">

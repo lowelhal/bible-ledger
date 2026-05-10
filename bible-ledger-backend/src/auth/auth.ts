@@ -5,13 +5,15 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 const frontendUrl = process.env.FRONTEND_URL || '';
-
+const backendUrl = process.env.BACKEND_URL || '';
 const isProduction = !!frontendUrl && frontendUrl.startsWith('https');
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
+  // Backend's own URL — used to construct OAuth callback URLs
+  baseURL: backendUrl || undefined,
   emailAndPassword: {
     enabled: true,
   },
